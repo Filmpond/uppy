@@ -178,6 +178,10 @@ module.exports = class XHRUpload extends Plugin {
 
     this.uppy.log(`uploading ${current} of ${total}`)
     return new Promise((resolve, reject) => {
+      if (!this.uppy.getFile(file.id)) {
+        xhr.abort();
+      }
+
       const data = opts.formData
         ? this.createFormDataUpload(file, opts)
         : this.createBareUpload(file, opts)
