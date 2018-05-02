@@ -192,7 +192,7 @@ module.exports = class XHRUpload extends Plugin {
       const id = cuid()
 
       if (!this.uppy.getFile(file.id)) {
-        cancelUpload()
+        return cancelUpload()
       }
 
       xhr.upload.addEventListener('loadstart', (ev) => {
@@ -272,13 +272,13 @@ module.exports = class XHRUpload extends Plugin {
 
       this.uppy.on('file-removed', (removedFile) => {
         if (removedFile.id === file.id) {
-          cancelUpload()
+          return cancelUpload()
         }
       })
 
       this.uppy.on('upload-cancel', (fileID) => {
         if (fileID === file.id) {
-          cancelUpload()
+          return cancelUpload()
         }
       })
 
