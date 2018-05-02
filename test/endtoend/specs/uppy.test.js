@@ -129,7 +129,7 @@ describe('XHRUpload with `limit`', () => {
     browser.execute(() => {
       window.uppyXhrLimit.upload()
     })
-    browser.pause(5000)
+    browser.pause(10000)
     const status = browser.execute(() => ({
       started: window.uppyXhrLimit.uploadsStarted,
       complete: window.uppyXhrLimit.uploadsComplete
