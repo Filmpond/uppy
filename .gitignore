@@ -4,9 +4,9 @@ npm-debug.log
 env.sh
 node_modules
 
-dist/
 lib/
 coverage/
+test/endtoend/dist/
 
 website/db.json
 website/*.log
