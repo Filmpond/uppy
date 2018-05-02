@@ -178,10 +178,6 @@ module.exports = class XHRUpload extends Plugin {
 
     this.uppy.log(`uploading ${current} of ${total}`)
     return new Promise((resolve, reject) => {
-      if (!this.uppy.getFile(file.id)) {
-        xhr.abort();
-      }
-
       const data = opts.formData
         ? this.createFormDataUpload(file, opts)
         : this.createBareUpload(file, opts)
@@ -194,6 +190,11 @@ module.exports = class XHRUpload extends Plugin {
 
       const xhr = new XMLHttpRequest()
       const id = cuid()
+
+      if (!this.uppy.getFile(file.id)) {
+        xhr.abort()
+        return reject(new Error('Cancelled'))
+      }
 
       xhr.upload.addEventListener('loadstart', (ev) => {
         this.uppy.log(`[XHRUpload] ${id} started`)
@@ -274,6 +275,7 @@ module.exports = class XHRUpload extends Plugin {
         if (removedFile.id === file.id) {
           timer.done()
           xhr.abort()
+          return reject(new Error('Cancelled'))
         }
       })
 
@@ -281,6 +283,7 @@ module.exports = class XHRUpload extends Plugin {
         if (fileID === file.id) {
           timer.done()
           xhr.abort()
+          return reject(new Error('Cancelled'))
         }
       })
 
@@ -288,6 +291,7 @@ module.exports = class XHRUpload extends Plugin {
         // const files = this.uppy.getState().files
         // if (!files[file.id]) return
         xhr.abort()
+        return reject(new Error('Cancelled'))
       })
     })
   }

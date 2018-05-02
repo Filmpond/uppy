@@ -60,9 +60,11 @@ function startXHRLimitTest (endpoint) {
 
   uppy.on('upload-started', () => {
     uppy.uploadsStarted++
+    console.log(uppy.uploadsStarted)
   })
   uppy.on('upload-success', () => {
     uppy.uploadsComplete++
+    console.log(uppy.uploadsStarted)
   })
 }
 

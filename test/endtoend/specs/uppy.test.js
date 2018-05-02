@@ -68,7 +68,7 @@ describe('File upload with DragDrop + Tus, DragDrop + XHRUpload, i18n translated
   // })
 // })
 
-describe.skip('XHRUpload with `limit`', () => {
+describe('XHRUpload with `limit`', () => {
   let server = null
   before(() => {
     server = http.createServer((req, res) => {
@@ -130,6 +130,51 @@ describe.skip('XHRUpload with `limit`', () => {
       window.uppyXhrLimit.upload()
     })
     browser.pause(5000)
+    const status = browser.execute(() => ({
+      started: window.uppyXhrLimit.uploadsStarted,
+      complete: window.uppyXhrLimit.uploadsComplete
+    })).value
+    expect(status.started).to.be.equal(files.length)
+    expect(status.complete).to.be.equal(2)
+  })
+
+  it('should be able to cancel a file in the pending list', () => {
+    const files = [
+      makeFile(1000),
+      makeFile(1000),
+      makeFile(1000)
+    ]
+
+    const endpoint = `http://localhost:${server.address().port}`
+    browser.execute((endpoint) => {
+      window.startXHRLimitTest(endpoint)
+    }, endpoint)
+
+    if (browserSupportsChooseFile(capabilities)) {
+      files.forEach((file) => {
+        browser.chooseFile('#uppyXhrLimit .uppy-DragDrop-input', file.path)
+      })
+    } else {
+      browser.execute((files) => {
+        files.forEach((data, i) => {
+          window.uppyXhrLimit.addFile({
+            source: 'test',
+            name: `testfile${i}`,
+            type: 'text/plain',
+            data: new Blob([data], { type: 'text/plain' })
+          })
+        })
+      }, files.map((file) => file.content.toString('hex')))
+    }
+
+    browser.execute(() => {
+      window.uppyXhrLimit.upload()
+    })
+    browser.execute(() => {
+      let fileIds = Object.keys(window.uppyXhrLimit.state.files)
+      window.uppyXhrLimit.removeFile(fileIds[2])
+    })
+    browser.pause(10000)
     const status = browser.execute(() => ({
       started: window.uppyXhrLimit.uploadsStarted,
       complete: window.uppyXhrLimit.uploadsComplete
