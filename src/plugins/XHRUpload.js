@@ -192,9 +192,7 @@ module.exports = class XHRUpload extends Plugin {
       const id = cuid()
 
       if (!this.uppy.getFile(file.id)) {
-        timer.done()
-        xhr.abort()
-        return reject(new Error('Cancelled'))
+        cancelUpload()
       }
 
       xhr.upload.addEventListener('loadstart', (ev) => {
@@ -274,17 +272,13 @@ module.exports = class XHRUpload extends Plugin {
 
       this.uppy.on('file-removed', (removedFile) => {
         if (removedFile.id === file.id) {
-          timer.done()
-          xhr.abort()
-          return reject(new Error('Cancelled'))
+          cancelUpload()
         }
       })
 
       this.uppy.on('upload-cancel', (fileID) => {
         if (fileID === file.id) {
-          timer.done()
-          xhr.abort()
-          return reject(new Error('Cancelled'))
+          cancelUpload()
         }
       })
 
@@ -294,6 +288,12 @@ module.exports = class XHRUpload extends Plugin {
         xhr.abort()
         return reject(new Error('Cancelled'))
       })
+
+      function cancelUpload () {
+        timer.done()
+        xhr.abort()
+        return reject(new Error('Cancelled'))
+      }
     })
   }
 
