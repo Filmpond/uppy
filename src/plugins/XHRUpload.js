@@ -192,6 +192,7 @@ module.exports = class XHRUpload extends Plugin {
       const id = cuid()
 
       if (!this.uppy.getFile(file.id)) {
+        timer.done()
         xhr.abort()
         return reject(new Error('Cancelled'))
       }
