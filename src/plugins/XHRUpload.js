@@ -191,6 +191,10 @@ module.exports = class XHRUpload extends Plugin {
       const xhr = new XMLHttpRequest()
       const id = cuid()
 
+      if (!this.uppy.getFile(file.id)) {
+        return cancelUpload()
+      }
+
       xhr.upload.addEventListener('loadstart', (ev) => {
         this.uppy.log(`[XHRUpload] ${id} started`)
         // Begin checking for timeouts when loading starts.
@@ -268,15 +272,13 @@ module.exports = class XHRUpload extends Plugin {
 
       this.uppy.on('file-removed', (removedFile) => {
         if (removedFile.id === file.id) {
-          timer.done()
-          xhr.abort()
+          return cancelUpload()
         }
       })
 
       this.uppy.on('upload-cancel', (fileID) => {
         if (fileID === file.id) {
-          timer.done()
-          xhr.abort()
+          return cancelUpload()
         }
       })
 
@@ -284,7 +286,14 @@ module.exports = class XHRUpload extends Plugin {
         // const files = this.uppy.getState().files
         // if (!files[file.id]) return
         xhr.abort()
+        return reject(new Error('Cancelled'))
       })
+
+      function cancelUpload () {
+        timer.done()
+        xhr.abort()
+        return reject(new Error('Cancelled'))
+      }
     })
   }
 
